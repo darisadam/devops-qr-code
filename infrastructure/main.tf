@@ -1,60 +1,25 @@
-resource "aws_vpc" "main" {
-    cidr_block = "10.0.0.0/16"
-    enable_dns_hostnames = true
-}
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+  version = "~> 5.0"
 
-resource "aws_subnet" "subnet_1" {
-    vpc_id = aws_vpc.main.id
-    cidr_block = "10.0.0.0/20"
-    availability_zone = "us-east-1b"
-    map_public_ip_on_launch = true
-}
+  name = "qr-code-vpc"
+  cidr = "10.0.0.0/16"
 
-resource "aws_subnet" "subnet_2" {
-    vpc_id = aws_vpc.main.id
-    cidr_block = "10.0.16.0/20"
-    availability_zone = "us-east-1c"
-    map_public_ip_on_launch = true
-}
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 
-resource "aws_subnet" "subnet_3" {
-    vpc_id = aws_vpc.main.id
-    cidr_block = "10.0.32.0/20"
-    availability_zone = "us-east-1d"
-    map_public_ip_on_launch = true
-}
+  enable_nat_gateway = true
+  single_nat_gateway = true # For cost saving in dev/test. Set false for high availability prod.
+  enable_vpn_gateway = false
 
-resource "aws_internet_gateway" "internet_gw" {
-    vpc_id = aws_vpc.main.id
-}
+  enable_dns_hostnames = true
+  enable_dns_support   = true
 
-resource "aws_route_table" "route_table" {
-    vpc_id = aws_vpc.main.id
-
-    route {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = aws_internet_gateway.internet_gw.id
-    }
-
-    route {
-        cidr_block = "10.0.0.0/16"
-        gateway_id = "local"
-    }
-}
-
-resource "aws_route_table_association" "route_table_association_1" {
-    subnet_id = aws_subnet.subnet_1.id
-    route_table_id = aws_route_table.route_table.id
-}
-
-resource "aws_route_table_association" "route_table_association_2" {
-    subnet_id = aws_subnet.subnet_2.id
-    route_table_id = aws_route_table.route_table.id
-}
-
-resource "aws_route_table_association" "route_table_association_3" {
-    subnet_id = aws_subnet.subnet_3.id
-    route_table_id = aws_route_table.route_table.id
+  tags = {
+    Environment = "production"
+    Project     = "devops-qr-code"
+  }
 }
 
 module "eks" {
@@ -66,9 +31,9 @@ module "eks" {
 
     cluster_endpoint_public_access = true
 
-    vpc_id = aws_vpc.main.id
-    subnet_ids = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id, aws_subnet.subnet_3.id]
-    control_plane_subnet_ids = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id, aws_subnet.subnet_3.id]
+    vpc_id = module.vpc.vpc_id
+    subnet_ids = module.vpc.private_subnets
+    control_plane_subnet_ids = module.vpc.private_subnets
 
     eks_managed_node_groups = {
         green = {
