@@ -5,6 +5,11 @@ image:
   pullPolicy: IfNotPresent
   tag: "latest"
 
+serviceAccount:
+  create: true
+  name: "qr-code-api"
+  annotations: {} # This will be populated by ArgoCD or manually with the Role ARN
+
 service:
   type: ClusterIP
   port: 80
@@ -33,3 +38,4 @@ resources:
 env:
   awsRegion: "us-east-1"
   s3EndpointUrl: ""
+  s3BucketName: "" # Make this configurable
