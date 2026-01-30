@@ -4,7 +4,7 @@ resource "random_id" "bucket_suffix" {
 
 resource "aws_s3_bucket" "app_data" {
   bucket = "qr-code-app-data-${random_id.bucket_suffix.hex}"
-  force_delete = true # For easier cleanup in this demo project
+  force_destroy = true # For easier cleanup in this demo project
 }
 
 resource "aws_s3_bucket_public_access_block" "app_data" {

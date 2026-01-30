@@ -1,50 +1,90 @@
-# devops-qr-code
+# DevOps QR Code Project
 
-This is the sample application for the DevOps Capstone Project.
-It generates QR Codes for the provided URL, the front-end is in NextJS and the API is written in Python using FastAPI.
+A production-grade microservices application deployed with an **Enterprise DevOps Stack**.
 
-## Application
+## 🚀 Tech Stack & Tools
 
-**Front-End** - A web application where users can submit URLs.
+This project showcases a complete DevSecOps pipeline and Cloud Native infrastructure:
 
-**API**: API that receives URLs and generates QR codes. The API stores the QR codes in cloud storage(AWS S3 Bucket).
+| Domain | Technology | Description |
+| :--- | :--- | :--- |
+| **Cloud Provider** | **AWS** | EKS (Kubernetes), ECR, S3, VPC, IAM |
+| **IaC** | **Terraform** | Automated infrastructure provisioning with remote state locking (DynamoDB) |
+| **CI/CD** | **GitHub Actions** | Automated testing, security scanning, and container build/push |
+| **GitOps** | **ArgoCD** | Continuous Delivery to Kubernetes with automated self-healing |
+| **Containerization** | **Docker & Helm** | Optimized images and packaged Helm charts for K8s deployment |
+| **Observability** | **Prometheus & Grafana** | Full stack monitoring, metrics collection, and visualization |
+| **Security** | **IRSA** & **Trivy** | IAM Roles for Service Accounts (least privilege) and image scanning |
+| **Local Testing** | **LocalStack** | Mocking AWS services locally for cost-efficient development |
 
-## Running locally
+## 🏗 Architecture
 
-### API
+- **Frontend**: Next.js application served via Kubernetes Service.
+- **Backend**: FastAPI (Python) service handling QR code generation.
+- **Storage**: AWS S3 (mocked locally) for storing generated images.
+- **Networking**: VPC with Public/Private subnets, NAT Gateways, and Ingress configurations.
 
-The API code exists in the `api` directory. You can run the API server locally:
+---
 
-- Clone this repo
-- Make sure you are in the `api` directory
-- Create a virtualenv by typing in the following command: `python -m venv .venv`
-- Install the required packages: `pip install -r requirements.txt`
-- Create a `.env` file, and add you AWS Access and Secret key, check  `.env.example`
-- Also, change the BUCKET_NAME to your S3 bucket name in `main.py`
-- Run the API server: `uvicorn main:app --reload`
-- Your API Server should be running on port `http://localhost:8000`
+### Quick Start (Dev Mode)
+To run the full application (Frontend, Backend, and S3Mock) in Docker:
+```bash
+./scripts/start-app-docker.sh
+```
+- **Frontend**: http://localhost:3000
+- **Backend**: http://localhost:8000
+- **S3 Console**: http://localhost:9090
 
-### Front-end
+---
 
-The front-end code exits in the `front-end-nextjs` directory. You can run the front-end server locally:
+## 💻 Running Locally (DevOps Mode)
 
-- Clone this repo
-- Make sure you are in the `front-end-nextjs` directory
-- Install the dependencies: `npm install`
-- Run the NextJS Server: `npm run dev`
-- Your Front-end Server should be running on `http://localhost:3000`
+You can run the entire infrastructure stack locally without an AWS account using **LocalStack**.
 
+### Prerequisites
+- Docker & Docker Compose
+- Python 3.11+ & Pip
+- [Terraform](https://developer.hashicorp.com/terraform/install)
 
-## Goal
+### Quick Start
 
-The goal is to get hands-on with DevOps practices like Containerization, CICD and monitoring.
+1. **Setup Environment**
+   We use `conda` or `venv` to manage tools like `tflocal` and `awscli-local`.
+   ```bash
+   conda create -n devops-qr-local python=3.11 -y
+   conda activate devops-qr-local
+   pip install terraform-local awscli-local
+   ```
 
-Look at the capstone project for more detials.
+2. **Run Infrastructure Tests**
+   Use the provided script to spin up LocalStack, provision mock S3 buckets, and verify the Terraform configuration.
+   ```bash
+   ./scripts/start-local-infra.sh
+   ```
+   *This command starts LocalStack, bootstraps the remote state backend, and runs `terraform plan` against the local environment.*
+   *Note: Full `terraform apply` for EKS requires LocalStack Pro license.*
 
-## Author
+---
 
-[Rishab Kumar](https://github.com/rishabkumar7)
+## 🛠 Running Application Locally (Dev Mode)
 
-## License
+If you just want to run the code (Frontend + Backend) without the full infra:
 
-[MIT](./LICENSE)
+### Backend (API)
+1. `cd api`
+2. `pip install -r requirements.txt`
+3. `uvicorn main:app --reload`
+   - Runs on: `http://localhost:8000`
+   - *Note: Requires a local S3 Mock running (see docker-compose).*
+
+### Frontend (Next.js)
+1. `cd front-end-nextjs`
+2. `npm install`
+3. `npm run dev`
+   - Runs on: `http://localhost:3000`
+
+---
+
+## 📜 License
+
+[MIT](./LICENSE) - Copyright (c) 2023 Rishab Kumar, 2025 Daris Adam

@@ -39,7 +39,7 @@ def disable_expect_header(request, **kwargs):
 
 s3.meta.events.register('before-send.s3.PutObject', disable_expect_header)
 
-bucket_name = 'my-bucket'
+bucket_name = os.getenv("BUCKET_NAME", "my-bucket")
 
 @app.get("/")
 def read_root():

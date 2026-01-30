@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  s3mock:
+    image: adobe/s3mock
+    container_name: devops-qr-s3mock
+    ports:
+      - "9090:9090"
+      - "9191:9191"
+    environment:
+      initialBuckets: qr-code-app-data
+
+  api:
+    build: ./api
+    container_name: devops-qr-api
+    ports:
+      - "8000:80"
+    environment:
+      - AWS_ACCESS_KEY_ID=test-key
+      - AWS_SECRET_ACCESS_KEY=test-secret
+      # Connects to s3mock service on port 9090
+      - S3_ENDPOINT_URL=http://s3mock:9090
+      - AWS_REGION=us-east-1
+      - BUCKET_NAME=qr-code-app-data
+      # Public URL for browser access
+      - S3_PUBLIC_URL=http://localhost:9090
+    depends_on:
+      - s3mock
+
+  frontend:
+    build: ./front-end-nextjs
+    container_name: devops-qr-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # Browser will access API via localhost:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - api
