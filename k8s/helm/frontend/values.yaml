@@ -10,6 +10,16 @@ service:
   port: 80
   targetPort: 3000
 
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: qr-code.local
+      paths:
+        - path: /
+          pathType: Prefix
+
 resources:
   limits:
     cpu: 100m
@@ -19,4 +29,4 @@ resources:
     memory: 64Mi
 
 env:
-  apiUrl: "http://qr-code-api" # Internal cluster DNS name
+  apiUrl: "http://qr-code-api"

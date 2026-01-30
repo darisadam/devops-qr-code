@@ -10,6 +10,18 @@ service:
   port: 80
   targetPort: 80
 
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: api.qr-code.local
+      paths:
+        - path: /
+          pathType: Prefix
+
 resources:
   limits:
     cpu: 100m
@@ -20,4 +32,4 @@ resources:
 
 env:
   awsRegion: "us-east-1"
-  s3EndpointUrl: "" # Leave empty for AWS S3, set for local/mock
+  s3EndpointUrl: ""
