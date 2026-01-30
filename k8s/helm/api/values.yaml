@@ -1,0 +1,23 @@
+replicaCount: 2
+
+image:
+  repository: qr-code-api
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+env:
+  awsRegion: "us-east-1"
+  s3EndpointUrl: "" # Leave empty for AWS S3, set for local/mock
